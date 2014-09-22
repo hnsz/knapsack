@@ -1,5 +1,5 @@
 #include <stdio.h>
-
+#include <stdlib.h>
 
 int encrypt_letter(char ch, int *pub_key)
 {
@@ -26,7 +26,7 @@ char decrypt_letter(int num, int *priv_key, int m_inv, int n)
 	char mask[] = {1,2,4,8,16,32,64,-128};
 	char letter;
 
-	for(letter = 0, i = 8; --i;) {
+	for(letter = 0, i = 8; --i >= 0;) {
 
 		if(suma - priv_key[i] >= 0) {
 
@@ -38,6 +38,27 @@ char decrypt_letter(int num, int *priv_key, int m_inv, int n)
 	return letter;
 }
 
+
+int parse_num(FILE *infile)
+{
+	char ch;
+	int num = 0;
+
+	while((ch = fgetc(infile)) != EOF)
+	{
+		if(ch == ' ')
+			return num;
+		if(ch >= '0' && ch <= '9') {
+			num *= 10;
+			num += ch - '0';
+		}
+		else {
+			printf("Error: input (file) isn't in the right format. Exit.\n");
+			exit(-1);
+		}
+	}
+	return -1;
+}
 #if 1
 //	standalone test
 int main()
@@ -47,16 +68,23 @@ int main()
 	int m_inv = 149;
 	int n = 389;
 	int num;
-	char letter = 'p';
-	char decrypted_letter;
-
-	num = encrypt_letter(letter, pub_key);
+	char ch;
+	FILE *infile = stdin;
+	FILE *outfile = stdout;
 	
-	printf("Encrypted letter '%c' into number %d.\n", letter, num);
 
-	decrypted_letter = decrypt_letter(num, priv_key, m_inv, n);
+	
 
-	printf("Decrypted number %d into letter '%c'.\n", num, decrypted_letter);
+
+/*
+	while((ch = fgetc(infile)) != EOF) {
+		fprintf(outfile,"%d ", encrypt_letter(ch, pub_key));
+	}
+*/
+	while((num = parse_num(infile)) != -1)
+	{
+		fputc(decrypt_letter(num, priv_key, m_inv, n), outfile);
+	}
 	return 0;
 }
 #endif

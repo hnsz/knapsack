@@ -5,7 +5,6 @@ int encrypt_letter(char ch, int *pub_key)
 {
 	int num;
 	int i;
-	//char mask[] = {-128,64,32,16,8,4,2,1};
 	char mask[] = {1,2,4,8,16,32,64,-128};
 
 
@@ -46,8 +45,12 @@ int parse_num(FILE *infile)
 
 	while((ch = fgetc(infile)) != EOF)
 	{
-		if(ch == ' ')
-			return num;
+		if(ch == ' ' || ch == '\n' || ch == '\t') { //otherwise tough luck
+			if(num)
+				return num;
+			else
+				continue;
+		}
 		if(ch >= '0' && ch <= '9') {
 			num *= 10;
 			num += ch - '0';
@@ -59,32 +62,3 @@ int parse_num(FILE *infile)
 	}
 	return -1;
 }
-#if 1
-//	standalone test
-int main()
-{
-	int pub_key[] = {94, 141, 282, 175, 350, 311, 233, 77};
-	int priv_key[] = {2,3,6,12,24,48,96,192};
-	int m_inv = 149;
-	int n = 389;
-	int num;
-	char ch;
-	FILE *infile = stdin;
-	FILE *outfile = stdout;
-	
-
-	
-
-
-/*
-	while((ch = fgetc(infile)) != EOF) {
-		fprintf(outfile,"%d ", encrypt_letter(ch, pub_key));
-	}
-*/
-	while((num = parse_num(infile)) != -1)
-	{
-		fputc(decrypt_letter(num, priv_key, m_inv, n), outfile);
-	}
-	return 0;
-}
-#endif
